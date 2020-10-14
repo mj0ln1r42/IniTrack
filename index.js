@@ -233,7 +233,7 @@ class IniTrack extends React.Component
 	}
 	
 	start(){
-		if (!this.state.turns) {
+		if (this.state.turns.length == 0) {
 			alert('Please enter at least one character first');
 			return;
 		}
