@@ -1,0 +1,21 @@
+.ListTurnChr div:first-child {
+	font-weight: bold;
+}
+
+.InitiativeListTurn {
+	border-style: solid;
+}
+
+.InitiativeListTurn span {
+	display: inline-block;
+}
+
+.InitiativeListTurn span:first-child {
+	width: 15%;
+}
+
+.InitiativeListTurn span:nth-child(2) {
+	border-style: dashed;
+	width: 80%;
+	padding: 5px;
+}
