@@ -13,6 +13,14 @@ function Controls (props)
 		currentTurn = e('div', {}, `Current Turn: ${props.currentTurn}`);
 		nextTurn = e('button', {onClick: props.nextTurn}, 'Next Turn');
 	}
+		
+	const clear = e('button', {onClick: props.clear}, 'Reset');
+	
+	const mainControls = e('div', {},
+		startButton,
+		currentTurn,
+		nextTurn,
+		clear);
 	
 	const addChr = e('div', {},
 		e('button', {onClick: props.addChr}, 'Add Character'),
@@ -22,22 +30,21 @@ function Controls (props)
 		e('input', {id: 'addChrHP', placeholder: 'HP', type: 'number'}),
 		);
 		
-	const clear = e('button', {onClick: props.clear}, 'Reset');
-		
-	return e('div', {},
-		startButton,
-		currentTurn,
-		nextTurn,
-		clear,
+	return e('div', {className: 'Controls'},
+		mainControls,
 		addChr);
 }
 
 function CurrentTurnChr(props)
 {
-	return e('li', {className: 'CurrentTurnChr'},
-		e('div', {}, `${props.chr.name}`),
+	const chrName = e('td', {width: '30%'}, `${props.chr.name}`);
+	const chrInfo = e('td', {width: '70%'},
 		e('div', {}, `HP: ${props.chr.hp}`),
-		e('div', {}, `AC: ${props.chr.ac}`),)
+		e('div', {}, `AC: ${props.chr.ac}`));
+		
+	return e('tr', {},
+		chrName,
+		chrInfo);
 }
 
 class CurrentTurn extends React.Component
@@ -47,20 +54,20 @@ class CurrentTurn extends React.Component
 			e(CurrentTurnChr, {chr: chr, key: 'curchr_'+chr.name}));
 			
 		return e('div', {},
-			//e('div', {}, `Current Turn: ${this.props.turn.turnNo}`),
-			e('ul', {}, chrs));
+			e('h3', {}, "Who's Up:"),
+			e('table', {className: 'CurrentTurn'}, chrs));
 	}
 }
 
 class ListTurnChr extends React.Component
 {
 	render(){
-		const name = e('div', {}, `${this.props.chr.name}`);
-		const info = e('div', {}, `AC: ${this.props.chr.ac} / HP: ${this.props.chr.hp}`);
-		const remove = e('div', {},
+		const name = e('td', {width: '30%'}, `${this.props.chr.name}`);
+		const info = e('td', {width: '50%'}, `AC: ${this.props.chr.ac} / HP: ${this.props.chr.hp}`);
+		const remove = e('td', {},
 			e('button', {onClick: () => this.props.removeChr(this.props.chr)}, 'Remove'));
 			
-		return e('div', {className: 'ListTurnChr'},
+		return e('tr', {className: 'ListTurnChr'},
 			name,
 			info,
 			remove
@@ -80,9 +87,9 @@ class InitiativeListTurn extends React.Component
 		// Decorate the current turn
 		const currentTurnClass = this.props.isCurrent ? 'InitiativeListCurrentTurn' : '';
 		
-		return e('li', {className: `InitiativeListTurn ${currentTurnClass}`},
-			e('span', {}, `${this.props.turn.turnNo}`),
-			e('span', {}, chrs),
+		return e('tr', {className: `InitiativeListTurn ${currentTurnClass}`},
+			e('td', {}, `${this.props.turn.turnNo}`),
+			e('td', {}, e('table', {className: 'InitiativeListTurnChars'}, chrs)),
 		);
 	}
 }
@@ -90,19 +97,17 @@ class InitiativeListTurn extends React.Component
 class InitiativeList extends React.Component
 {
 	render(){
-		const turns = this.props.turns.map((turn) => {
-//			if (turn.turnNo == this.props.currentTurn)
-//				return null;
-//			else
-				return e(InitiativeListTurn, {
-					turn: turn,
-					isCurrent: this.props.currentTurn != undefined && turn.turnNo == this.props.currentTurn,
-					removeChr: this.props.removeChr,
-					key: 'initTurn_'+turn.turnNo})
-		});
+		const turns = this.props.turns.map((turn) =>
+			e(InitiativeListTurn, {
+				turn: turn,
+				isCurrent: this.props.currentTurn != undefined && turn.turnNo == this.props.currentTurn,
+				removeChr: this.props.removeChr,
+				key: 'initTurn_'+turn.turnNo})
+		);
 			
 		return e('div', {},
-			e('ul', {style: {listStyleType: 'none'}}, turns)
+			e('h3', {}, 'Initiative List'),
+			e('table', {className: 'InitiativeList'}, turns)
 		);
 	}
 }
@@ -258,7 +263,7 @@ class IniTrack extends React.Component
 			});
 			
 		let initiativeList = null;
-		if (this.state.turns) {
+		if (this.state.turns.length != 0) {
 			initiativeList = e(InitiativeList, {
 				currentTurn: this.state.currentTurn,
 				turns: this.state.turns,

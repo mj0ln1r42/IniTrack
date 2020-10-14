@@ -1,21 +1,85 @@
-.ListTurnChr div:first-child {
+.Controls {
+	font-weight: bold;
+	margin: 10px;
+}
+
+.Controls * {
+	margin: 2px;
+	padding: 3px;
+}
+
+
+
+.CurrentTurn {
+	margin: 3px;
+	width: 100%;
+	text-align: left;
+	border-collapse: collapse;
+}
+
+.CurrentTurn tr:nth-child(odd) {
+	background: #FFFFF0;
+}
+
+.CurrentTurn tr:nth-child(even) {
+	background: #EBEBE0;
+}
+
+.CurrentTurn td {
+	border: 1px solid #DDDDDD;
+	padding: 3px;
+}
+
+.CurrentTurn td:first-child {
 	font-weight: bold;
 }
 
-.InitiativeListTurn {
-	border-style: solid;
+.CurrentTurn tbody td {
+	font-size: 13px;
 }
 
-.InitiativeListTurn span {
-	display: inline-block;
+.InitiativeList {
+	width: 100%;
+	text-align: center;
+	border-collapse: collapse;
 }
 
-.InitiativeListTurn span:first-child {
-	width: 15%;
+.InitiativeList td {
+	border: 1px solid #DDDDDD;
+	padding: 3px;
 }
 
-.InitiativeListTurn span:nth-child(2) {
-	border-style: dashed;
-	width: 80%;
-	padding: 5px;
+.InitiativeList td:first-child {
+	font-weight: bold;
+}
+
+.InitiativeList tbody td {
+	font-size: 13px;
+}
+
+.InitiativeList tr:nth-child(odd) {
+	background: #FFFFE0;
+}
+
+.InitiativeList tr.InitiativeListCurrentTurn {
+	background: #DDDDFF;
+}
+
+.InitiativeListTurnChars {
+	margin: 3px;
+	width: 100%;
+	text-align: left;
+	border-collapse: collapse;
+}
+
+.InitiativeListTurnChars tr:nth-child(odd) {
+	background: #FFFFF0;
+}
+
+.InitiativeListTurnChars tr:nth-child(even) {
+	background: #EBEBE0;
+}
+
+.InitiativeListTurnChars td:last-child {
+	text-align: center;
 }
