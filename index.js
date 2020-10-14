@@ -2,8 +2,10 @@
 
 const e = React.createElement;
 
+// Render controls
 function Controls (props)
 {
+	// Conditionally show these based on whether we've started
 	let startButton = null;
 	let currentTurn = null;
 	let nextTurn = null;
@@ -22,6 +24,7 @@ function Controls (props)
 		nextTurn,
 		clear);
 	
+	// Add Character button
 	const addChr = e('div', {},
 		e('button', {onClick: props.addChr}, 'Add Character'),
 		e('input', {id: 'addChrTurnNo', placeholder: 'Turn No', type: 'number'}),
@@ -35,6 +38,7 @@ function Controls (props)
 		addChr);
 }
 
+// Render a single character's info in the current turn panel
 function CurrentTurnChr(props)
 {
 	const chrName = e('td', {width: '30%'}, `${props.chr.name}`);
@@ -47,6 +51,7 @@ function CurrentTurnChr(props)
 		chrInfo);
 }
 
+// Render the current turn panel
 class CurrentTurn extends React.Component
 {
 	render(){
@@ -59,6 +64,7 @@ class CurrentTurn extends React.Component
 	}
 }
 
+// Render a character's info in the initiative list
 class ListTurnChr extends React.Component
 {
 	render(){
@@ -75,16 +81,18 @@ class ListTurnChr extends React.Component
 	}
 }
 
+// Render a single turn in the initiative list
 class InitiativeListTurn extends React.Component
 {
 	render(){
+		// Map given characters to their own components
 		const chrs = this.props.turn.chrs.map((chr) =>
 			e(ListTurnChr, {
 				chr: chr,
 				removeChr: (chr) => this.props.removeChr(this.props.turn, chr),
 				key: 'listchr_'+chr.name}));
 				
-		// Decorate the current turn
+		// Decorate the current turn in the initiative list
 		const currentTurnClass = this.props.isCurrent ? 'InitiativeListCurrentTurn' : '';
 		
 		return e('tr', {className: `InitiativeListTurn ${currentTurnClass}`},
@@ -94,6 +102,7 @@ class InitiativeListTurn extends React.Component
 	}
 }
 
+// Render the initiative list component
 class InitiativeList extends React.Component
 {
 	render(){
@@ -112,6 +121,7 @@ class InitiativeList extends React.Component
 	}
 }
 
+// Main app root
 class IniTrack extends React.Component
 {
 	constructor(props) {
@@ -139,7 +149,7 @@ class IniTrack extends React.Component
 		};
 	}
   
-	// Move to the next turn
+	// Move to the next turn in the initiative list
 	nextTurn() {
 		// Get the available turn no's in descending list
 		const turnNos = this.state.turns
@@ -157,6 +167,7 @@ class IniTrack extends React.Component
 		this.setState({currentTurn: nextTurnNo});
 	}
 	
+	// Remove a character from te initiativeList (did somebody die?)
 	removeChr(turn, chr) {
 		// Find the specified turn/character combo
 		const turnIndex = this.state.turns.indexOf(turn);
@@ -179,11 +190,14 @@ class IniTrack extends React.Component
 		this.setState({turns: turns});
 	}
 	
+	// Add a character to the initiative list (Gandalf joins the battle!)
 	addChr() {
+		// Grab input values
 		const turnNo = document.getElementById('addChrTurnNo').value;
 		const chrName = document.getElementById('addChrName').value;
 		const ac = document.getElementById('addChrAC').value;
 		const hp = document.getElementById('addChrHP').value;
+		
 		// Validate inputs
 		if (!turnNo) {
 			alert('Please specify a positive number for turn ordering');
@@ -224,7 +238,7 @@ class IniTrack extends React.Component
 			turn = { turnNo: turnNo, chrs: [] };
 			turns.push(turn);
 			
-			// Keep turns sorted descending by turn no
+			// Keep turns sorted, descending by turn no
 			turns.sort((a, b) => b.turnNo - a.turnNo);
 		}
 
@@ -233,27 +247,35 @@ class IniTrack extends React.Component
 		this.setState({turns: turns});
 	}
 	
+	// Reset the state of the initiative tracker
 	clear(){
-		this.setState({turns: []})
+		this.setState({turns: [], currentTurn: undefined});
 	}
 	
+	// Kick off combat with the entered combatants
 	start(){
+		// Dont start if no combatants have been entered
 		if (this.state.turns.length == 0) {
 			alert('Please enter at least one character first');
 			return;
 		}
-		
+
+		// Start off with the highest initiative roll in the list
 		const startTurnNo = Math.max(...this.state.turns.map((turn) => turn.turnNo));
+		
 		this.setState({currentTurn: startTurnNo});
 	}
 
+	// Render the app
 	render() {
+		// CurrentTurn component only shows if we're actually running
 		let currentTurn = null;
 		if (this.state.currentTurn != undefined) {
 			const currentTurnData = this.state.turns.find((turn) => turn.turnNo == this.state.currentTurn);
 			currentTurn = e(CurrentTurn, {turn: currentTurnData});
 		}
 		
+		// Controls Component
 		const controls = e(Controls, {
 			start: this.start.bind(this),
 			currentTurn: this.state.currentTurn,
@@ -262,6 +284,7 @@ class IniTrack extends React.Component
 			clear: this.clear.bind(this),
 			});
 			
+		// InitiativeList component only shows if any characters have been entered
 		let initiativeList = null;
 		if (this.state.turns.length != 0) {
 			initiativeList = e(InitiativeList, {
@@ -270,7 +293,8 @@ class IniTrack extends React.Component
 				removeChr: this.removeChr.bind(this),
 			});
 		}
-			  
+		
+		// Wrap em all up in a div
 		return e('div', {},
 			currentTurn,
 			controls,
