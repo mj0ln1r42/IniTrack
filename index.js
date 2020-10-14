@@ -4,17 +4,31 @@ const e = React.createElement;
 
 function Controls (props)
 {
+	let startButton = null;
+	let currentTurn = null;
+	let nextTurn = null;
+	if (props.currentTurn == undefined) {
+		startButton = e('button', {onClick: props.start}, 'Start');
+	} else {
+		currentTurn = e('div', {}, `Current Turn: ${props.currentTurn}`);
+		nextTurn = e('button', {onClick: props.nextTurn}, 'Next Turn');
+	}
+	
 	const addChr = e('div', {},
 		e('button', {onClick: props.addChr}, 'Add Character'),
-		e('input', {id: 'addChrTurnNo', placeholder: 'Turn No'}),
+		e('input', {id: 'addChrTurnNo', placeholder: 'Turn No', type: 'number'}),
 		e('input', {id: 'addChrName', placeholder: 'Name'}),
-		e('input', {id: 'addChrAC', placeholder: 'AC'}),
-		e('input', {id: 'addChrHP', placeholder: 'HP'}),
+		e('input', {id: 'addChrAC', placeholder: 'AC', type: 'number'}),
+		e('input', {id: 'addChrHP', placeholder: 'HP', type: 'number'}),
 		);
 		
+	const clear = e('button', {onClick: props.clear}, 'Reset');
+		
 	return e('div', {},
-		e('div', {}, `Current Turn: ${props.currentTurn}`),
-		e('button', {onClick: props.nextTurn}, 'Next Turn'),
+		startButton,
+		currentTurn,
+		nextTurn,
+		clear,
 		addChr);
 }
 
@@ -82,7 +96,7 @@ class InitiativeList extends React.Component
 //			else
 				return e(InitiativeListTurn, {
 					turn: turn,
-					isCurrent: turn.turnNo == this.props.currentTurn,
+					isCurrent: this.props.currentTurn != undefined && turn.turnNo == this.props.currentTurn,
 					removeChr: this.props.removeChr,
 					key: 'initTurn_'+turn.turnNo})
 		});
@@ -98,7 +112,7 @@ class IniTrack extends React.Component
 	constructor(props) {
 		super(props);
 		this.state = {
-			currentTurn: 20,
+			// Mock data to start with
 			turns: [
 				{	turnNo: 20,
 					chrs: [
@@ -166,7 +180,7 @@ class IniTrack extends React.Component
 		const ac = document.getElementById('addChrAC').value;
 		const hp = document.getElementById('addChrHP').value;
 		// Validate inputs
-		if (!turnNo || turnNo <= 0) {
+		if (!turnNo) {
 			alert('Please specify a positive number for turn ordering');
 			return;
 		}
@@ -192,6 +206,12 @@ class IniTrack extends React.Component
 			return;
 		}
 		
+		// Validation passed, clear inputs
+		document.getElementById('addChrTurnNo').value = '';
+		document.getElementById('addChrName').value = '';
+		document.getElementById('addChrAC').value = '';
+		document.getElementById('addChrHP').value = '';
+		
 		// Find the specified turn or add a new one
 		const turns = this.state.turns.slice();
 		let turn = turns.find((turn) => turn.turnNo == turnNo);
@@ -207,22 +227,44 @@ class IniTrack extends React.Component
 		turn.chrs.push({ name: chrName, ac: ac, hp: hp });
 		this.setState({turns: turns});
 	}
+	
+	clear(){
+		this.setState({turns: []})
+	}
+	
+	start(){
+		if (!this.state.turns) {
+			alert('Please enter at least one character first');
+			return;
+		}
+		
+		const startTurnNo = Math.max(...this.state.turns.map((turn) => turn.turnNo));
+		this.setState({currentTurn: startTurnNo});
+	}
 
 	render() {
-		const currentTurnData = this.state.turns.find((turn) => turn.turnNo == this.state.currentTurn);
-		const currentTurn = e(CurrentTurn, {turn: currentTurnData});
+		let currentTurn = null;
+		if (this.state.currentTurn != undefined) {
+			const currentTurnData = this.state.turns.find((turn) => turn.turnNo == this.state.currentTurn);
+			currentTurn = e(CurrentTurn, {turn: currentTurnData});
+		}
 		
 		const controls = e(Controls, {
+			start: this.start.bind(this),
 			currentTurn: this.state.currentTurn,
 			nextTurn: this.nextTurn.bind(this),
 			addChr: this.addChr.bind(this),
+			clear: this.clear.bind(this),
 			});
-			  
-		const initiativeList = e(InitiativeList, {
-			currentTurn: this.state.currentTurn,
-			turns: this.state.turns,
-			removeChr: this.removeChr.bind(this),
+			
+		let initiativeList = null;
+		if (this.state.turns) {
+			initiativeList = e(InitiativeList, {
+				currentTurn: this.state.currentTurn,
+				turns: this.state.turns,
+				removeChr: this.removeChr.bind(this),
 			});
+		}
 			  
 		return e('div', {},
 			currentTurn,
